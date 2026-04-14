@@ -4,12 +4,14 @@
   "description": "Backend para sistema de encuesta de canciones",
   "main": "src/server.js",
   "scripts": {
-    "dev": "node --watch --env-file=.env src/server.js",
+    "dev": "docker-compose up -d && node --watch --env-file=.env src/server.js",
     "start": "node src/server.js"
   },
   "author": "laatcode",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "joi": "^18.1.2",
+    "mysql2": "^3.22.0"
   }
 }
