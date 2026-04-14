@@ -1,0 +1,14 @@
+services:
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=YOUR_ROOT_PASSWORD
+      - MYSQL_DATABASE=YOUR_BD_NAME
+      - TZ=YOUR_TIME_ZONE
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+volumes:
+  db_data:
+    driver: local

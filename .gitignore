@@ -1,0 +1,9 @@
+/node_modules
+
+#Backend
+/backend/.env
+/backend/docker-compose.yml
+
+#Frontend
+/frontend/.env
+/frontend/docker-compose.yml

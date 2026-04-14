@@ -1,0 +1,15 @@
+{
+  "name": "song_poll_backend",
+  "version": "1.0.0",
+  "description": "Backend para sistema de encuesta de canciones",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/server.js",
+    "start": "node src/server.js"
+  },
+  "author": "laatcode",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
