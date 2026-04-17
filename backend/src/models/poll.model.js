@@ -50,7 +50,7 @@ class Poll {
   }
 
   static update(id, data) {
-    return pool.query('UPDATE polls SET name = ?, description = ?, status_id = ? WHERE id = ?', [data.name, data.description, data.status_id, id])
+    return pool.query('UPDATE polls SET name = ?, description = ?, status_id = ? WHERE id = ?', [data.name, data.description, data.statusId, id])
       .then(() => this.findById(id))
   }
 

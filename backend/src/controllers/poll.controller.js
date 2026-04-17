@@ -1,6 +1,5 @@
 const Poll = require('../models/poll.model')
 const CustomError = require('../errors/CustomError')
-const ValidationError = require('../errors/ValidationError')
 
 exports.getAllPolls = async (req, res, next) => {
   try {
@@ -17,7 +16,8 @@ exports.getAllPolls = async (req, res, next) => {
 
 exports.getPollById = async (req, res, next) => {
   try {
-    const poll = await Poll.findById(req.params.id)
+    const id = parseInt(req.params.id)
+    const poll = await Poll.findById(id)
     if (!poll) {
       throw new CustomError(404, 'Poll not found')
     }
@@ -29,25 +29,23 @@ exports.getPollById = async (req, res, next) => {
 }
 
 exports.createPoll = async (req, res, next) => {
-  if (!req.body)
-    return next(new ValidationError([ '"name" is required']))
-
-  Poll.create(req.body)
-    .then(async poll => {
-      const songs = await Poll.findSongsById(poll.id)
-      res.status(201).json({ ...poll, songs })
-    })
-    .catch(err => next(err))
+  try {
+    const poll = await Poll.create(req.body)
+    const songs = await Poll.findSongsById(poll.id)
+    res.status(201).json({ ...poll, songs })
+  } catch (err) {
+    next(err)
+  }
 }
 
 exports.updatePoll = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id)
-    const poll = await Poll.findById(req.params.id)
+    const poll = await Poll.findById(id)
     if (!poll) {
       throw new CustomError(404, 'Poll not found')
     }
-    let pollUpdated = { ...poll, status_id: req.body.statusId || poll.statusId, ...req.body }
+    let pollUpdated = { ...poll, statusId: req.body.statusId || poll.statusId, ...req.body }
     pollUpdated = await Poll.update(id, pollUpdated)
     pollUpdated.songs = await Poll.findSongsById(id)
     res.json(pollUpdated)
@@ -57,17 +55,15 @@ exports.updatePoll = async (req, res, next) => {
 }
 
 exports.deletePoll = async (req, res, next) => {
-  const id = parseInt(req.params.id)
-  Poll.findById(id)
-    .then(poll => {
-      if (!poll) return next(new CustomError(404, 'Poll not found'))
-      Poll.delete(id)
-        .then(result => {
-          if (!result) return next()
-          res.json(result)
-        })
-    })
-    .catch(err => next(err))
+  try {
+    const id = parseInt(req.params.id)
+    const poll = await Poll.findById(id)
+    if (!poll) return next(new CustomError(404, 'Poll not found'))
+    const result = await Poll.delete(id)
+    res.json(result)
+  } catch (err) {
+    next(err)
+  }
 }
 
 exports.addSongs = async (req, res, next) => {
