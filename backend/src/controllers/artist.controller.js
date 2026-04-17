@@ -1,4 +1,3 @@
-const ValidationError = require('../errors/ValidationError')
 const CustomError = require('../errors/CustomError')
 const Artist = require('../models/artist.model')
 
@@ -18,10 +17,6 @@ exports.getArtistById = async (req, res, next) => {
 }
 
 exports.createArtist = async (req, res, next) => {
-
-  if (!req.body || !req.body.name)
-    return next(new ValidationError([ '"name" is required']))
-
   Artist.create(req.body)
     .then(artist => res.status(201).json(artist))
     .catch(err => next(err))
@@ -29,9 +24,6 @@ exports.createArtist = async (req, res, next) => {
 
 exports.updateArtist = async (req, res, next) => {
   const id = parseInt(req.params.id)
-
-  if (!req.body || !req.body.name)
-    return next(new ValidationError([ '"name" is required']))
 
   Artist.update(id, req.body)
     .then(artist => {

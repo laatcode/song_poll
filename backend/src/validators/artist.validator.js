@@ -5,11 +5,11 @@ const name = joi.string().min(3).max(40)
 
 const createArtistSchema = joi.object({
   name: name.required()
-})
+}).required()
 
 const updateArtistSchema = joi.object({
   name: name.required()
-})
+}).required()
 
 const getArtistSchema = joi.object({
   id: id.required()

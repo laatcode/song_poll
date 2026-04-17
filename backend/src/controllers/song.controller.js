@@ -1,7 +1,6 @@
 const Song = require('../models/song.model')
 const Artist = require('../models/artist.model')
 const CustomError = require('../errors/CustomError')
-const ValidationError = require('../errors/ValidationError')
 
 exports.getAllSongs = async (req, res, next) =>
   Song.find()
@@ -19,10 +18,6 @@ exports.getSongById = async (req, res, next) => {
 }
 
 exports.createSong = async (req, res, next) => {
-
-  if (!req.body)
-    return next(new ValidationError([ '"title" is required']))
-
   const artist = await Artist.findById(req.body.artistId).then((artist) => artist)
   if (!artist) return next(new CustomError(404, 'Artist not found'))
 
@@ -33,9 +28,6 @@ exports.createSong = async (req, res, next) => {
 
 exports.updateSong = async (req, res, next) => {
   const id = parseInt(req.params.id)
-
-  if (!req.body)
-    return next(new ValidationError([ '"title" is required']))
 
   const artist = await Artist.findById(req.body.artistId).then((artist) => artist)
   if (!artist) return next(new CustomError(404, 'Artist not found'))

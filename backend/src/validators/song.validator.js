@@ -7,12 +7,12 @@ const artistId = joi.number().integer().positive()
 const createSongSchema = joi.object({
   title: title.required(),
   artistId: artistId.required()
-})
+}).required()
 
 const updateSongSchema = joi.object({
   title: title,
   artistId: artistId
-})
+}).required()
 
 const getSongSchema = joi.object({
   id: id.required()

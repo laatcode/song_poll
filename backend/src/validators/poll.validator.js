@@ -15,13 +15,13 @@ const createPollSchema = joi.object({
   name: name.required(),
   description: description.required(),
   songs: songs.required()
-})
+}).required()
 
 const updatePollSchema = joi.object({
   name: name,
   description: description,
   statusId: statusId
-})
+}).required()
 
 const getPollSchema = joi.object({
   id: id.required()
