@@ -3,8 +3,20 @@ const Artist = require('../models/artist.model')
 const CustomError = require('../errors/CustomError')
 
 class SongService {
-  static async findAll() {
-    return Song.find()
+  static async findAll({ page, limit }) {
+    const [songs, total] = await Promise.all([
+      Song.find(page, limit),
+      Song.count()
+    ])
+    return {
+      data: songs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
   }
 
   static async findById(id) {

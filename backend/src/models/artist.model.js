@@ -1,8 +1,15 @@
 const pool = require('../db')
 
 class Artist {
-  static find() {
-    return pool.query('SELECT * FROM artists').then(([rows]) => rows)
+  static find(page = 1, limit = 10) {
+    const offset = (page - 1) * limit
+    return pool.query('SELECT * FROM artists LIMIT ? OFFSET ?', [limit, offset])
+      .then(([rows]) => rows)
+  }
+
+  static count() {
+    return pool.query('SELECT COUNT(*) as total FROM artists')
+      .then(([rows]) => rows[0].total)
   }
 
   static findById(id) {

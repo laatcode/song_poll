@@ -2,12 +2,22 @@ const Poll = require('../models/poll.model')
 const CustomError = require('../errors/CustomError')
 
 class PollService {
-  static async findAll() {
-    const polls = await Poll.find()
-    return Promise.all(polls.map(async poll => {
+  static async findAll({ page, limit }) {
+    const polls = await Poll.find(page, limit)
+    const pollsWithSongs = await Promise.all(polls.map(async poll => {
       const songs = await Poll.findSongsById(poll.id)
       return { ...poll, songs }
     }))
+    const total = await Poll.count()
+    return {
+      data: pollsWithSongs,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
   }
 
   static async findById(id) {

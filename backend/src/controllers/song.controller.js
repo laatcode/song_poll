@@ -1,7 +1,7 @@
 const SongService = require('../services/song.service')
 
 exports.getAllSongs = async (req, res, next) => {
-  res.json(await SongService.findAll())
+  res.json(await SongService.findAll(req.pagination))
 }
 
 exports.getSongById = async (req, res, next) => {

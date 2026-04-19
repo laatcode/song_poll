@@ -2,7 +2,7 @@ const CustomError = require('../errors/CustomError')
 const PollService = require('../services/poll.service')
 
 exports.getAllPolls = async (req, res, next) => {
-  res.json(await PollService.findAll())
+  res.json(await PollService.findAll(req.pagination))
 }
 
 exports.getPollById = async (req, res, next) => {

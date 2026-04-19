@@ -2,7 +2,7 @@ const CustomError = require('../errors/CustomError')
 const ArtistService = require('../services/artist.service')
 
 exports.getAllArtists = async (req, res, next) => {
-  res.json(await ArtistService.findAll())
+  res.json(await ArtistService.findAll(req.pagination))
 }
 
 exports.getArtistById = async (req, res, next) => {

@@ -3,8 +3,15 @@ const ValidationError = require('../errors/ValidationError')
 
 class Poll {
 
-  static find() {
-    return pool.query('SELECT id, name, description, status_id AS statusId FROM polls').then(([rows]) => rows)
+  static find(page = 1, limit = 10) {
+    const offset = (page - 1) * limit
+    return pool.query('SELECT id, name, description, status_id AS statusId FROM polls LIMIT ? OFFSET ?', [limit, offset])
+      .then(([rows]) => rows)
+  }
+
+  static count() {
+    return pool.query('SELECT COUNT(*) as total FROM polls')
+      .then(([rows]) => rows[0].total)
   }
 
   static findById(id) {
