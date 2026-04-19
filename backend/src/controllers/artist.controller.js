@@ -1,54 +1,25 @@
 const CustomError = require('../errors/CustomError')
-const Artist = require('../models/artist.model')
+const ArtistService = require('../services/artist.service')
 
 exports.getAllArtists = async (req, res, next) => {
-  try {
-    const artists = await Artist.find()
-    res.json(artists)
-  } catch (err) {
-    next(err)
-  }
+  res.json(await ArtistService.findAll())
 }
 
 exports.getArtistById = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id)
-    const artist = await Artist.findById(id)
-    if (!artist) return next(new CustomError(404, 'Artist not found'))
-    res.json(artist)
-  } catch (err) {
-    next(err)
-  }
+  const id = parseInt(req.params.id)
+  res.json(await ArtistService.findById(id))
 }
 
 exports.createArtist = async (req, res, next) => {
-  try {
-    const artist = await Artist.create(req.body)
-    res.status(201).json(artist)
-  } catch (err) {
-    next(err)
-  }
+  res.status(201).json(await ArtistService.create(req.body))
 }
 
 exports.updateArtist = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id)
-    const artist = await Artist.update(id, req.body)
-    if (!artist) return next(new CustomError(404, 'Artist not found'))
-    res.json(artist)
-  } catch (err) {
-    next(err)
-  }
+  const id = parseInt(req.params.id)
+  res.json(await ArtistService.update(id, req.body))
 }
 
 exports.deleteArtist = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id)
-    const artist = await Artist.findById(id)
-    if (!artist) return next(new CustomError(404, 'Artist not found'))
-    const result = await Artist.delete(id)
-    res.json(result)
-  } catch (err) {
-    next(err)
-  }
+  const id = parseInt(req.params.id)
+  res.json(await ArtistService.delete(id))
 }

@@ -12,18 +12,16 @@ class Artist {
 
   static create(data) {
     return pool.query('INSERT INTO artists (name) VALUES (?)', [data.name])
-      .then(([result]) => this.findById(result.insertId))
+      .then(([result]) => result.insertId)
   }
 
   static update(id, data) {
     return pool.query('UPDATE artists SET name = ? WHERE id = ?', [data.name, id])
-      .then(() => this.findById(id))
   }
 
   static delete(id) {
     return pool.query('DELETE FROM artists WHERE id = ?', [id])
-      .then(() => ({ message: 'Artist deleted successfully' }))
   }
 }
 
-module.exports = Artist;
+module.exports = Artist

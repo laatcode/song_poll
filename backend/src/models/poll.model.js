@@ -32,6 +32,10 @@ class Poll {
         try {
           await connection.query('INSERT INTO polls_songs (poll_id, song_id) VALUES (?, ?)', [pollId, song.songId])
         } catch (error) {
+          if (error.errno === 1062) {
+            // do nothing, the song is already in the poll
+            continue
+          }
           await connection.rollback()
           if (error.errno === 1452) {
             throw new ValidationError(`Song with id ${song.songId} does not exist`)
@@ -40,23 +44,20 @@ class Poll {
         }
       }
       await connection.commit()
-      return this.findById(pollId)
+      return pollId
     } catch (err) {
       throw err
-    }
-    finally {
+    } finally {
       connection.release()
     }
   }
 
   static update(id, data) {
     return pool.query('UPDATE polls SET name = ?, description = ?, status_id = ? WHERE id = ?', [data.name, data.description, data.statusId, id])
-      .then(() => this.findById(id))
   }
 
   static delete(id) {
     return pool.query('DELETE FROM polls WHERE id = ?', [id])
-      .then(() => ({ message: 'Poll deleted successfully' }))
   }
 
   static async addSongs(pollId, songIds) {
@@ -78,12 +79,12 @@ class Poll {
           throw error
         }
       }
-      await connection.commit();
+      await connection.commit()
       return 'Songs successfully added'
     } catch (err) {
-      throw err;
+      throw err
     } finally {
-      connection.release();
+      connection.release()
     }
   }
 
@@ -98,12 +99,12 @@ class Poll {
           throw error
         }
       }
-      await connection.commit();
+      await connection.commit()
       return 'Songs successfully deleted'
     } catch (err) {
-      throw err;
+      throw err
     } finally {
-      connection.release();
+      connection.release()
     }
   }
 }

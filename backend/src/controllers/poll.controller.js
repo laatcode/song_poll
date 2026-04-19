@@ -1,101 +1,37 @@
-const Poll = require('../models/poll.model')
 const CustomError = require('../errors/CustomError')
+const PollService = require('../services/poll.service')
 
 exports.getAllPolls = async (req, res, next) => {
-  try {
-    const polls = await Poll.find()
-    const songs = await Promise.all(polls.map(async poll => {
-      const songs = await Poll.findSongsById(poll.id)
-      return { ...poll, songs }
-    }))
-    res.json(songs)
-  } catch (error) {
-    next(error)
-  }
+  res.json(await PollService.findAll())
 }
 
 exports.getPollById = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id)
-    const poll = await Poll.findById(id)
-    if (!poll) {
-      throw new CustomError(404, 'Poll not found')
-    }
-    const songs = await Poll.findSongsById(poll.id)
-    res.json({ ...poll, songs })
-  } catch (error) {
-    next(error)
-  }
+  const id = parseInt(req.params.id)
+  res.json(await PollService.findById(id))
 }
 
 exports.createPoll = async (req, res, next) => {
-  try {
-    const poll = await Poll.create(req.body)
-    const songs = await Poll.findSongsById(poll.id)
-    res.status(201).json({ ...poll, songs })
-  } catch (err) {
-    next(err)
-  }
+  res.status(201).json(await PollService.create(req.body))
 }
 
 exports.updatePoll = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id)
-    const poll = await Poll.findById(id)
-    if (!poll) {
-      throw new CustomError(404, 'Poll not found')
-    }
-    let pollUpdated = { ...poll, statusId: req.body.statusId || poll.statusId, ...req.body }
-    pollUpdated = await Poll.update(id, pollUpdated)
-    pollUpdated.songs = await Poll.findSongsById(id)
-    res.json(pollUpdated)
-  } catch (error) {
-    next(error)
-  }
+  const id = parseInt(req.params.id)
+  res.json(await PollService.update(id, req.body))
 }
 
 exports.deletePoll = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id)
-    const poll = await Poll.findById(id)
-    if (!poll) return next(new CustomError(404, 'Poll not found'))
-    const result = await Poll.delete(id)
-    res.json(result)
-  } catch (err) {
-    next(err)
-  }
+  const id = parseInt(req.params.id)
+  res.json(await PollService.delete(id))
 }
 
 exports.addSongs = async (req, res, next) => {
   const pollId = parseInt(req.params.id)
-  try {
-    const poll = await Poll.findById(pollId)
-    if (!poll) {
-      return next(new CustomError(404, 'Poll not found'))
-    }
-
-    const songIds = req.body.map(song => song.songId)
-    await Poll.addSongs(pollId, songIds)
-    poll.songs = await Poll.findSongsById(pollId)
-    res.json(poll)
-  } catch (error) {
-    next(error)
-  }
+  const songIds = req.body.map(song => song.songId)
+  res.json(await PollService.addSongs(pollId, songIds))
 }
 
 exports.deleteSongs = async (req, res, next) => {
   const pollId = parseInt(req.params.id)
-  try {
-    const poll = await Poll.findById(pollId)
-    if (!poll) {
-      return next(new CustomError(404, 'Poll not found'))
-    }
-
-    const songIds = req.body.map(song => song.songId)
-    await Poll.deleteSongs(pollId, songIds)
-    poll.songs = await Poll.findSongsById(pollId)
-    res.json(poll)
-  } catch (error) {
-    next(error)
-  }
+  const songIds = req.body.map(song => song.songId)
+  res.json(await PollService.deleteSongs(pollId, songIds))
 }

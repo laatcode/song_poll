@@ -13,4 +13,4 @@ app.use('/api/polls', require('./routes/poll.routes'))
 app.use(require('./middlewares/notFound.middleware'))
 app.use(require('./middlewares/errorHandler.middleware'))
 
-module.exports = app;
+module.exports = app

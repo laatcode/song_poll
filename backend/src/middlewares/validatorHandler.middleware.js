@@ -5,8 +5,8 @@ module.exports = (schema, property) => (req, res, next) => {
     const { error } = schema.validate(data, { abortEarly: false })
     
     if (error) {
-      const messages = error.details.map(detail => detail.message);
-      return next(new ValidationError(messages));
+      const messages = error.details.map(detail => detail.message)
+      return next(new ValidationError(messages))
     }
     next()
 }
