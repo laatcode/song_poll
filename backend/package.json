@@ -5,7 +5,9 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "docker-compose up -d && node --watch --env-file=.env src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "author": "laatcode",
   "license": "ISC",
@@ -13,5 +15,9 @@
     "express": "^5.2.1",
     "joi": "^18.1.2",
     "mysql2": "^3.22.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
   }
 }
