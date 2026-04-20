@@ -14,6 +14,7 @@ const songs = joi.array().items(
 const createPollSchema = joi.object({
   name: name.required(),
   description: description.required(),
+  statusId: statusId,
   songs: songs.required()
 }).required()
 
