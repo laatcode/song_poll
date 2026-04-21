@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 
+// Rate Limiting  
+app.use(require('./middlewares/rateLimit.middleware'))
+
 app.use(express.json())
 app.get('/', (req, res) => res.send('Server running'))
 
