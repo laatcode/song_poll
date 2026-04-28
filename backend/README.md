@@ -2,6 +2,18 @@
 
 Backend para sistema de encuestas de canciones.
 
+## Autenticación
+
+Los endpoints están protegidos con JWT (excepto los públicos).
+
+### Auth
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Registrar usuario |
+| POST | `/api/auth/login` | Login (retorna JWT) |
+| GET | `/api/auth/me` | Usuario actual |
+
 ## Endpoints
 
 ### Artists

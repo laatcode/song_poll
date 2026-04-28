@@ -13,9 +13,11 @@
   "author": "laatcode",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^5.2.1",
     "express-rate-limit": "^7.1.5",
     "joi": "^18.1.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.22.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"

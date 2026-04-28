@@ -18,11 +18,56 @@ const options = {
       }
     ],
     tags: [
+      { name: 'Auth', description: 'Operaciones de autenticación' },
       { name: 'Artists', description: 'Operaciones de artistas' },
       { name: 'Songs', description: 'Operaciones de canciones' },
       { name: 'Polls', description: 'Operaciones de encuestas' }
     ],
     paths: {
+      '/api/auth/register': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Registrar usuario',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['username', 'password'],
+                  properties: {
+                    username: { type: 'string', minLength: 3, maxLength: 20 },
+                    password: { type: 'string', minLength: 6, maxLength: 50 }
+                  }
+                }
+              }
+            }
+          },
+          responses: { 201: { description: 'Usuario registrado' }, 400: { description: 'Username ya existe' } }
+        }
+      },
+      '/api/auth/login': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Iniciar sesión',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['username', 'password'],
+                  properties: {
+                    username: { type: 'string' },
+                    password: { type: 'string' }
+                  }
+                }
+              }
+            }
+          },
+          responses: { 200: { description: 'Login exitoso' }, 401: { description: 'Credenciales inválidas' } }
+        }
+      },
       '/api/artists': {
         get: {
           tags: ['Artists'],
@@ -51,6 +96,7 @@ const options = {
         post: {
           tags: ['Artists'],
           summary: 'Crear artista',
+          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -76,6 +122,7 @@ const options = {
         patch: {
           tags: ['Artists'],
           summary: 'Actualizar artista',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           requestBody: {
             required: true,
@@ -90,6 +137,7 @@ const options = {
         delete: {
           tags: ['Artists'],
           summary: 'Eliminar artista',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: { 200: { description: 'Eliminado' }, 404: { description: 'No encontrado' } }
         }
@@ -107,6 +155,7 @@ const options = {
         post: {
           tags: ['Songs'],
           summary: 'Crear canción',
+          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -135,6 +184,7 @@ const options = {
         patch: {
           tags: ['Songs'],
           summary: 'Actualizar canción',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           requestBody: {
             content: {
@@ -154,6 +204,7 @@ const options = {
         delete: {
           tags: ['Songs'],
           summary: 'Eliminar canción',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: { 200: { description: 'Eliminada' }, 404: { description: 'No encontrada' } }
         }
@@ -171,6 +222,7 @@ const options = {
         post: {
           tags: ['Polls'],
           summary: 'Crear encuesta',
+          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -204,6 +256,7 @@ const options = {
         patch: {
           tags: ['Polls'],
           summary: 'Actualizar encuesta',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           requestBody: {
             content: {
@@ -224,6 +277,7 @@ const options = {
         delete: {
           tags: ['Polls'],
           summary: 'Eliminar encuesta',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: { 200: { description: 'Eliminada' }, 404: { description: 'No encontrada' } }
         }
@@ -250,6 +304,7 @@ const options = {
         delete: {
           tags: ['Polls'],
           summary: 'Eliminar canciones de encuesta',
+          security: [{ bearerAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           requestBody: {
             required: true,
@@ -301,6 +356,22 @@ const options = {
             total: { type: 'integer' },
             totalPages: { type: 'integer' }
           }
+        },
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            username: { type: 'string' },
+            role: { type: 'string', enum: ['admin', 'editor'] },
+            created_at: { type: 'string', format: 'date-time' }
+          }
+        }
+      },
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
         }
       }
     }

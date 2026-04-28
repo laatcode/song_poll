@@ -20,6 +20,7 @@ app.get('/', (req, res) => res.send('Server running'))
 app.use('/api/artists', require('./routes/artist.route'))
 app.use('/api/songs', require('./routes/song.route'))
 app.use('/api/polls', require('./routes/poll.routes'))
+app.use('/api/auth', require('./routes/auth.routes'))
 
 app.use(require('./middlewares/notFound.middleware'))
 app.use(require('./middlewares/errorHandler.middleware'))

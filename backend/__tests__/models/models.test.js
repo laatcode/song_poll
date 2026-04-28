@@ -14,6 +14,7 @@ jest.mock('../../db/config', () => ({
 const Artist = require('../../src/models/artist.model')
 const Song = require('../../src/models/song.model')
 const Poll = require('../../src/models/poll.model')
+const User = require('../../src/models/user.model')
 
 describe('Artist Model', () => {
   beforeEach(() => {
@@ -237,6 +238,30 @@ describe('Poll Model', () => {
       mockQuery.mockResolvedValueOnce([])
       await Poll.delete(1)
       expect(mockQuery).toHaveBeenCalledWith('DELETE FROM polls WHERE id = ?', [1])
+    })
+  })
+})
+
+describe('User Model', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('findByUsername', () => {
+    it('should return the user data with the specified username', async () => {
+      mockQuery.mockResolvedValueOnce([[{ id: 1, username: 'username1', password: 'hashedpassword' }]])
+      const result = await User.findByUsername('username1')
+      expect(result).toEqual({ id: 1, username: 'username1', password: 'hashedpassword' })
+      expect(mockQuery).toHaveBeenCalledWith('SELECT * FROM users WHERE username = ?', ["username1"])
+    })
+  })
+
+  describe('findById', () => {
+    it('should return the id and username of the user with the specified id', async () => {
+      mockQuery.mockResolvedValueOnce([[{ id: 1, username: 'username1' }]])
+      const result = await User.findById(1)
+      expect(result).toEqual({ id: 1, username: 'username1' })
+      expect(mockQuery).toHaveBeenCalledWith('SELECT id, username FROM users WHERE id = ?', [1])
     })
   })
 })

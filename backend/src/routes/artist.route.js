@@ -3,12 +3,13 @@ const { getAllArtists, getArtistById, createArtist, updateArtist, deleteArtist }
 const validatorHandler = require('../middlewares/validatorHandler.middleware')
 const pagination = require('../middlewares/pagination.middleware')
 const { createArtistSchema, updateArtistSchema, getArtistSchema } = require('../validators/artist.validator')
+const auth = require('../middlewares/auth.middleware')
 
 router
     .get('/', pagination, getAllArtists)
     .get('/:id', validatorHandler(getArtistSchema, 'params'), getArtistById)
-    .post('/', validatorHandler(createArtistSchema, 'body'), createArtist)
-    .patch('/:id', validatorHandler(getArtistSchema, 'params'), validatorHandler(updateArtistSchema, 'body'), updateArtist)
-    .delete('/:id', validatorHandler(getArtistSchema, 'params'), deleteArtist)
+    .post('/', auth(), validatorHandler(createArtistSchema, 'body'), createArtist)
+    .patch('/:id', auth(), validatorHandler(getArtistSchema, 'params'), validatorHandler(updateArtistSchema, 'body'), updateArtist)
+    .delete('/:id', auth(), validatorHandler(getArtistSchema, 'params'), deleteArtist)
 
 module.exports = router

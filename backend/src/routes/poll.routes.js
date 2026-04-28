@@ -4,14 +4,15 @@ const { getAllPolls, createPoll, getPollById, updatePoll, deletePoll, addSongs, 
 const validatorHandler = require('../middlewares/validatorHandler.middleware')
 const pagination = require('../middlewares/pagination.middleware')
 const { getPollSchema, createPollSchema, updatePollSchema, editSongsSchema  } = require('../validators/poll.validator')
+const auth = require('../middlewares/auth.middleware')
 
 router
     .get('/', pagination, getAllPolls)
     .get('/:id', validatorHandler(getPollSchema, 'params'), getPollById)
-    .post('/', validatorHandler(createPollSchema, 'body'), createPoll)
-    .patch('/:id', validatorHandler(getPollSchema, 'params'), validatorHandler(updatePollSchema, 'body'), updatePoll)
-    .delete('/:id', validatorHandler(getPollSchema, 'params'), deletePoll)
-    .post('/:id/songs', validatorHandler(getPollSchema, 'params'), validatorHandler(editSongsSchema, 'body'), addSongs)
-    .delete('/:id/songs', validatorHandler(getPollSchema, 'params'), validatorHandler(editSongsSchema, 'body'), deleteSongs)
+    .post('/', auth(), validatorHandler(createPollSchema, 'body'), createPoll)
+    .patch('/:id', auth(), validatorHandler(getPollSchema, 'params'), validatorHandler(updatePollSchema, 'body'), updatePoll)
+    .delete('/:id', auth(), validatorHandler(getPollSchema, 'params'), deletePoll)
+    .post('/:id/songs', auth(), validatorHandler(getPollSchema, 'params'), validatorHandler(editSongsSchema, 'body'), addSongs)
+    .delete('/:id/songs', auth(), validatorHandler(getPollSchema, 'params'), validatorHandler(editSongsSchema, 'body'), deleteSongs)
 
 module.exports = router

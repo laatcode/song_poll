@@ -1,4 +1,6 @@
 const request = require('supertest')
+const jwt = require('jsonwebtoken')
+const { JWT_SECRET } = require('../../src/config')
 
 const mockQuery = jest.fn()
 
@@ -14,6 +16,11 @@ jest.mock('../../db/config', () => ({
 }))
 
 const app = require('../../src/app')
+
+const getAuthHeader = () => {
+  const token = jwt.sign({ id: 1, username: 'testuser' }, JWT_SECRET)
+  return `Bearer ${token}`
+}
 
 describe('API Integration Tests', () => {
   beforeEach(() => {
@@ -75,7 +82,7 @@ describe('API Integration Tests', () => {
         mockQuery
           .mockResolvedValueOnce([{ insertId: 1 }])  // create()
           .mockResolvedValueOnce([[{ id: 1, name: 'Artist 1' }]])  // findById(1)
-        const res = await request(app).post('/api/artists').send({ name: 'Artist 1' })
+        const res = await request(app).post('/api/artists').set('Authorization', getAuthHeader()).send({ name: 'Artist 1' })
         expect(res.status).toBe(201)
         expect(res.body).toEqual({ id: 1, name: 'Artist 1' })
       })
@@ -84,7 +91,7 @@ describe('API Integration Tests', () => {
     describe('PATCH /api/artists/1', () => {
       it('should return an error when artist is not found', async () => {
         mockQuery.mockResolvedValueOnce([[]])  // findById(1)
-        const res = await request(app).patch('/api/artists/1').send({ name: 'Artist 2' })
+        const res = await request(app).patch('/api/artists/1').set('Authorization', getAuthHeader()).send({ name: 'Artist 2' })
         expect(res.status).toBe(404)
         expect(res.body.error).toBe('Artist not found')
       })
@@ -94,7 +101,7 @@ describe('API Integration Tests', () => {
           .mockResolvedValueOnce([[{ id: 1, name: 'Artist 1' }]])  // findById(1) before update
           .mockResolvedValueOnce([[]])  // update()
           .mockResolvedValueOnce([[{ id: 1, name: 'Artist 2' }]])  // findById(1) after update
-        const res = await request(app).patch('/api/artists/1').send({ name: 'Artist 2' })
+        const res = await request(app).patch('/api/artists/1').set('Authorization', getAuthHeader()).send({ name: 'Artist 2' })
         expect(res.status).toBe(200)
         expect(res.body).toEqual({ id: 1, name: 'Artist 2' })
       })
@@ -103,7 +110,7 @@ describe('API Integration Tests', () => {
     describe('DELETE /api/artists/1', () => {
       it('should return an error when artist is not found', async () => {
         mockQuery.mockResolvedValueOnce([[]])  // findById(1)
-        const res = await request(app).delete('/api/artists/1')
+        const res = await request(app).delete('/api/artists/1').set('Authorization', getAuthHeader())
         expect(res.status).toBe(404)
         expect(res.body.error).toBe('Artist not found')
       })
@@ -112,7 +119,7 @@ describe('API Integration Tests', () => {
         mockQuery
           .mockResolvedValueOnce([[{ id: 1, name: 'Artist 1' }]])  // findById(1) before delete
           .mockResolvedValueOnce([[]])  // delete()
-        const res = await request(app).delete('/api/artists/1')
+        const res = await request(app).delete('/api/artists/1').set('Authorization', getAuthHeader())
         expect(res.status).toBe(200)
         expect(res.body).toEqual({ message: 'Artist deleted successfully' })
       })
@@ -168,7 +175,7 @@ describe('API Integration Tests', () => {
         .mockResolvedValueOnce([[{ id: 1, name: 'Artist 1' }]])  // Artist.findById(1)
         .mockResolvedValueOnce([{ insertId: 1 }])  // create()
         .mockResolvedValueOnce([[{ id: 1, title: 'Song 1', artistId: 1 }]])  // findById(1)
-        const res = await request(app).post('/api/songs').send({ title: 'Song 1', artistId: 1 })
+        const res = await request(app).post('/api/songs').set('Authorization', getAuthHeader()).send({ title: 'Song 1', artistId: 1 })
         expect(res.status).toBe(201)
         expect(res.body).toEqual({ id: 1, title: 'Song 1', artistId: 1 })
       })
@@ -177,7 +184,7 @@ describe('API Integration Tests', () => {
     describe('PATCH /api/songs/1', () => {
       it('should return an error when song is not found', async () => {
         mockQuery.mockResolvedValueOnce([[]])  // findById(1)
-        const res = await request(app).patch('/api/songs/1').send({ title: 'Song 2' })
+        const res = await request(app).patch('/api/songs/1').set('Authorization', getAuthHeader()).send({ title: 'Song 2' })
         expect(res.status).toBe(404)
         expect(res.body.error).toBe('Song not found')
       })
@@ -186,7 +193,7 @@ describe('API Integration Tests', () => {
         mockQuery
           .mockResolvedValueOnce([[{ id: 1, title: 'Song 1', artistId: 1 }]])  // findById(1)
           .mockResolvedValueOnce([[]])  // Artist.findById(2)
-        const res = await request(app).patch('/api/songs/1').send({ title: 'Song 2', artistId: 2 })
+        const res = await request(app).patch('/api/songs/1').set('Authorization', getAuthHeader()).send({ title: 'Song 2', artistId: 2 })
         expect(res.status).toBe(400)
         expect(res.body.error).toBe('Artist not found')
       })
@@ -196,7 +203,7 @@ describe('API Integration Tests', () => {
           .mockResolvedValueOnce([[{ id: 1, title: 'Song 1', artistId: 1 }]])  // findById(1) before update
           .mockResolvedValueOnce([[]])  // update()
           .mockResolvedValueOnce([[{ id: 1, title: 'Song 2', artistId: 1 }]])  // findById(1) after update
-        const res = await request(app).patch('/api/songs/1').send({ title: 'Song 2' })
+        const res = await request(app).patch('/api/songs/1').set('Authorization', getAuthHeader()).send({ title: 'Song 2' })
         expect(res.status).toBe(200)
         expect(res.body).toEqual({ id: 1, title: 'Song 2', artistId: 1 })
       })
@@ -205,7 +212,7 @@ describe('API Integration Tests', () => {
     describe('DELETE /api/songs/1', () => {
       it('should return an error when song is not found', async () => {
         mockQuery.mockResolvedValueOnce([[]])  // findById(1)
-        const res = await request(app).delete('/api/songs/1')
+        const res = await request(app).delete('/api/songs/1').set('Authorization', getAuthHeader())
         expect(res.status).toBe(404)
         expect(res.body.error).toBe('Song not found')
       })
@@ -214,7 +221,7 @@ describe('API Integration Tests', () => {
         mockQuery
           .mockResolvedValueOnce([[{ id: 1, title: 'Song 1', artistId: 1 }]])  // findById(1) before delete
           .mockResolvedValueOnce([[]])  // delete()
-        const res = await request(app).delete('/api/songs/1')
+        const res = await request(app).delete('/api/songs/1').set('Authorization', getAuthHeader())
         expect(res.status).toBe(200)
         expect(res.body).toEqual({ message: 'Song deleted successfully' })
       })
@@ -275,7 +282,7 @@ describe('API Integration Tests', () => {
           .mockResolvedValueOnce([{ insertId: 0 }])  // Insert into polls_songs 2
           .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1)
           .mockResolvedValueOnce([[{ SongId: 1 }, { SongId: 2 }]])  // findSongsById(1)
-        const res = await request(app).post('/api/polls').send({ name: 'Poll 1', description: 'Description 1', songs: [{ songId: 1 }, { songId: 2 }] })
+        const res = await request(app).post('/api/polls').set('Authorization', getAuthHeader()).send({ name: 'Poll 1', description: 'Description 1', songs: [{ songId: 1 }, { songId: 2 }] })
         expect(res.status).toBe(201)
         expect(res.body).toEqual({ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2, songs: [{ SongId: 1 }, { SongId: 2 }] })
       })
@@ -284,7 +291,7 @@ describe('API Integration Tests', () => {
     describe('PATCH /api/polls/1', () => {
       it('should return an error when poll is not found', async () => {
         mockQuery.mockResolvedValueOnce([[]])  // findById(1)
-        const res = await request(app).patch('/api/polls/1').send({ name: 'Poll 2' })
+        const res = await request(app).patch('/api/polls/1').set('Authorization', getAuthHeader()).send({ name: 'Poll 2' })
         expect(res.status).toBe(404)
         expect(res.body.error).toBe('Poll not found')
       })
@@ -296,7 +303,7 @@ describe('API Integration Tests', () => {
           .mockResolvedValueOnce([[]])  // update()
           .mockResolvedValueOnce([[{ id: 1, name: 'Poll 2', description: 'Description 2', statusId: 2 }]])  // findById(1) after update
           .mockResolvedValueOnce([[{ SongId: 1 }, { SongId: 2 }]])  // findSongsById(1)
-        const res = await request(app).patch('/api/polls/1').send({ name: 'Poll 2', statusId: 2 })
+        const res = await request(app).patch('/api/polls/1').set('Authorization', getAuthHeader()).send({ name: 'Poll 2', statusId: 2 })
         expect(res.status).toBe(200)
         expect(res.body).toEqual({ id: 1, name: 'Poll 2', description: 'Description 2', statusId: 2, songs: [{ SongId: 1 }, { SongId: 2 }] })
       })
@@ -305,7 +312,7 @@ describe('API Integration Tests', () => {
     describe('DELETE /api/polls/1', () => {
       it('should return an error when poll is not found', async () => {
         mockQuery.mockResolvedValueOnce([[]])  // findById(1)
-        const res = await request(app).delete('/api/polls/1')
+        const res = await request(app).delete('/api/polls/1').set('Authorization', getAuthHeader())
         expect(res.status).toBe(404)
         expect(res.body.error).toBe('Poll not found')
       })
@@ -315,7 +322,7 @@ describe('API Integration Tests', () => {
           .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 1 }]])  // findById(1) before delete
           .mockResolvedValueOnce([[[{ songId: 1 }, { songId: 2 }]]])  // findSongsById(1)
           .mockResolvedValueOnce([[]])  // delete()
-        const res = await request(app).delete('/api/polls/1')
+        const res = await request(app).delete('/api/polls/1').set('Authorization', getAuthHeader())
         expect(res.status).toBe(200)
         expect(res.body).toEqual({ message: 'Poll deleted successfully' })
       })
