@@ -1,4 +1,4 @@
-const pool = require('../db')
+const pool = require('../../db/config')
 const ValidationError = require('../errors/ValidationError')
 
 class Poll {
@@ -20,7 +20,7 @@ class Poll {
   }
 
   static findActive() {
-    return pool.query('SELECT id, name, description, status_id AS statusId FROM polls WHERE status_id = 1')
+    return pool.query('SELECT id, name, description, status_id AS statusId FROM polls WHERE status_id = 2')
       .then(([rows]) => rows)
   }
 

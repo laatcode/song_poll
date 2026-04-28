@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS `songs` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(40) NOT NULL,
+  `artist_id` int UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);

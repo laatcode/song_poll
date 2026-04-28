@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "docker-compose up -d && node --watch --env-file=.env src/server.js",
     "start": "node src/server.js",
+    "db:migrate": "node --env-file=.env db/scripts/migrate.js",
     "test": "jest",
     "test:watch": "jest --watch"
   },

@@ -1,4 +1,4 @@
-const pool = require('../db')
+const pool = require('../../db/config')
 
 class Artist {
   static find(page = 1, limit = 10) {

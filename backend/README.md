@@ -66,9 +66,14 @@ npm run dev    # Iniciar con Docker
 npm start     # Iniciar sin Docker
 npm test      # Ejecutar tests
 
+## Migraciones SQL
+
+Las migraciones están en `/db/migrations/`.
+Ejecutarlas con el comando npm db:migrations.
+
 ## Documentación Swagger
 
-Acceder a: `http://localhost:3000/api/docs`
+Acceder a: `http://localhost:5000/api/docs`
 
-JSON: `http://localhost:3000/api/docs.json`
+JSON: `http://localhost:5000/api/docs.json`
 ```

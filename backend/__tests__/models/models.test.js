@@ -1,6 +1,6 @@
 const mockQuery = jest.fn()
 
-jest.mock('../../src/db', () => ({
+jest.mock('../../db/config', () => ({
   query: mockQuery,
   getConnection: jest.fn().mockResolvedValue({
     beginTransaction: jest.fn(),
