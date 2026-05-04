@@ -19,11 +19,6 @@ class Poll {
       .then(([rows]) => rows[0])
   }
 
-  static findActive() {
-    return pool.query('SELECT id, name, description, status_id AS statusId FROM polls WHERE status_id = 2')
-      .then(([rows]) => rows)
-  }
-
   static findSongsById(id) {
     return pool.query('SELECT song_id AS songId FROM polls_songs WHERE poll_id = ?', [id])
       .then(([rows]) => rows)
@@ -108,6 +103,31 @@ class Poll {
       }
       await connection.commit()
       return 'Songs successfully deleted'
+    } catch (err) {
+      throw err
+    } finally {
+      connection.release()
+    }
+  }
+
+  static async getActivePollId() {
+    const [rows] = await pool.query('SELECT id FROM polls WHERE status_id = 2 LIMIT 1')
+    return rows.length > 0 ? rows[0].id : null
+  }
+
+  static async deactivate(pollId) {
+    const [rows] = await pool.query('UPDATE polls SET status_id = 0 WHERE id = ?', [pollId])
+    return 'Poll successfully set as inactive'
+  }
+
+  static async activate(pollId) {
+    const connection = await pool.getConnection()
+    try {
+      await connection.beginTransaction()
+      await connection.query('UPDATE polls SET status_id = 0 WHERE id != ?', [pollId])
+      await connection.query('UPDATE polls SET status_id = 2 WHERE id = ?', [pollId])
+      await connection.commit()
+      return 'Poll successfully set as active'
     } catch (err) {
       throw err
     } finally {

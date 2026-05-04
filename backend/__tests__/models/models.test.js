@@ -15,6 +15,7 @@ const Artist = require('../../src/models/artist.model')
 const Song = require('../../src/models/song.model')
 const Poll = require('../../src/models/poll.model')
 const User = require('../../src/models/user.model')
+const PollVote = require('../../src/models/pollVote.model')
 
 describe('Artist Model', () => {
   beforeEach(() => {
@@ -240,6 +241,62 @@ describe('Poll Model', () => {
       expect(mockQuery).toHaveBeenCalledWith('DELETE FROM polls WHERE id = ?', [1])
     })
   })
+
+  describe('addSongs', () => {
+    it('should add songs to poll', async () => {
+      mockQuery.mockResolvedValueOnce([])
+      const result = await Poll.addSongs(1, [1, 2])
+      expect(mockQuery).toHaveBeenCalledWith('INSERT INTO polls_songs (poll_id, song_id) VALUES (?, ?)', [1, 1])
+      expect(mockQuery).toHaveBeenCalledWith('INSERT INTO polls_songs (poll_id, song_id) VALUES (?, ?)', [1, 2])
+      expect(result).toEqual('Songs successfully added')
+    })
+  })
+
+  describe('deleteSongs', () => {
+    it('should delete songs from poll', async () => {
+      mockQuery.mockResolvedValueOnce([])
+      const result = await Poll.deleteSongs(1, [1, 2])
+      expect(mockQuery).toHaveBeenCalledWith('DELETE FROM polls_songs WHERE poll_id = ? AND song_id = ?', [1, 1])
+      expect(mockQuery).toHaveBeenCalledWith('DELETE FROM polls_songs WHERE poll_id = ? AND song_id = ?', [1, 2])
+      expect(result).toEqual('Songs successfully deleted')
+    })
+  })
+
+  describe('getActivePollId', () => {
+    it('should return active poll id', async () => {
+      mockQuery.mockResolvedValueOnce([[{ id: 1 }]])
+      const result = await Poll.getActivePollId()
+      expect(result).toBe(1)
+      expect(mockQuery).toHaveBeenCalledWith('SELECT id FROM polls WHERE status_id = 2 LIMIT 1')
+    })
+
+    it('should return null if no active poll', async () => {
+      mockQuery.mockResolvedValueOnce([[]])
+      const result = await Poll.getActivePollId()
+      expect(result).toBeNull()
+      expect(mockQuery).toHaveBeenCalledWith('SELECT id FROM polls WHERE status_id = 2 LIMIT 1')
+    })
+  })
+
+  describe('deactivate', () => {  
+    it('should set poll to inactive', async () => {
+      mockQuery.mockResolvedValueOnce([[]])
+      const result = await Poll.deactivate(1)
+      expect(mockQuery).toHaveBeenCalledWith('UPDATE polls SET status_id = 0 WHERE id = ?', [1])
+      expect(result).toEqual('Poll successfully set as inactive')
+    })
+  })
+
+  describe('activate', () => {
+    it('should set poll to active', async () => {
+      mockQuery.mockResolvedValueOnce([])
+      mockQuery.mockResolvedValueOnce([])
+      const result = await Poll.activate(1)
+      expect(mockQuery).toHaveBeenCalledWith('UPDATE polls SET status_id = 0 WHERE id != ?', [1])
+      expect(mockQuery).toHaveBeenCalledWith('UPDATE polls SET status_id = 2 WHERE id = ?', [1])
+      expect(result).toEqual('Poll successfully set as active')
+    })
+  })
 })
 
 describe('User Model', () => {
@@ -262,6 +319,70 @@ describe('User Model', () => {
       const result = await User.findById(1)
       expect(result).toEqual({ id: 1, username: 'username1' })
       expect(mockQuery).toHaveBeenCalledWith('SELECT id, username FROM users WHERE id = ?', [1])
+    })
+  })
+
+  describe('create', () => {
+    it('should create a new user and return the new user id', async () => {
+      mockQuery.mockResolvedValueOnce([{ insertId: 1 }])
+      const result = await User.create({ username: 'newuser', password: 'hashedpassword' })
+      expect(result).toBe(1)
+      expect(mockQuery).toHaveBeenCalledWith('INSERT INTO users (username, password) VALUES (?, ?)', ['newuser', expect.any(String)])
+    })
+  })
+})
+
+describe('PollVote Model', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('create', () => {
+    it('should create a new poll vote', async () => {
+      mockQuery.mockResolvedValueOnce([{ insertId: 1 }])
+      const result = await PollVote.create({ pollId: 1, songId: 1, ipAddress: '192.168.1.10', userAgent: 'Mozilla/5.0' })
+      expect(mockQuery).toHaveBeenCalledWith('INSERT INTO poll_votes (poll_id, song_id, ip_address, user_agent) VALUES (?, ?, ?, ?)', [1, 1, '192.168.1.10', 'Mozilla/5.0'])
+    })
+  })
+
+  describe('findByPollId', () => {
+    it('should return votes for a poll', async () => {
+      mockQuery.mockResolvedValueOnce([[{ songId: 1, votes: 10 }, { songId: 2, votes: 5 }]])
+      const result = await PollVote.findByPollId(1)
+      expect(result).toEqual([{ songId: 1, votes: 10 }, { songId: 2, votes: 5 }])
+      expect(mockQuery).toHaveBeenCalledWith('SELECT song_id AS songId, COUNT(*) as votes FROM poll_votes WHERE poll_id = ?  GROUP BY song_id', [1])
+    })
+  })
+
+  describe('countByPollId', () => {
+    it('should return total vote count for a poll', async () => {
+      mockQuery.mockResolvedValueOnce([[{ total: 15 }]])
+      const result = await PollVote.countByPollId(1)
+      expect(result).toBe(15)
+      expect(mockQuery).toHaveBeenCalledWith('SELECT COUNT(*) as total FROM poll_votes WHERE poll_id = ?', [1])
+    })
+
+    it('should return null for a poll with no votes', async () => {
+      mockQuery.mockResolvedValueOnce([[{ total: 0 }]])
+      const result = await PollVote.countByPollId(1)
+      expect(result).toBe(0)
+      expect(mockQuery).toHaveBeenCalledWith('SELECT COUNT(*) as total FROM poll_votes WHERE poll_id = ?', [1])
+    })
+  })
+
+  describe('hasVoted', () => {
+    it('should return true if user has voted in the poll', async () => {
+      mockQuery.mockResolvedValueOnce([[{ count: 1 }]])
+      const result = await PollVote.hasVoted(1, '192.168.1.10', 'Mozilla/5.0')
+      expect(result).toBe(true)
+      expect(mockQuery).toHaveBeenCalledWith('SELECT COUNT(*) as count FROM poll_votes WHERE poll_id = ? AND ip_address = ? AND user_agent = ?', [1, '192.168.1.10', 'Mozilla/5.0'])
+    })
+
+    it('should return false if user has not voted in the poll', async () => {
+      mockQuery.mockResolvedValueOnce([[{ count: 0 }]])
+      const result = await PollVote.hasVoted(1, '192.168.1.10', 'Mozilla/5.0')
+      expect(result).toBe(false)
+      expect(mockQuery).toHaveBeenCalledWith('SELECT COUNT(*) as count FROM poll_votes WHERE poll_id = ? AND ip_address = ? AND user_agent = ?', [1, '192.168.1.10', 'Mozilla/5.0'])
     })
   })
 })

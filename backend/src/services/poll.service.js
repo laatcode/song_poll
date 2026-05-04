@@ -27,14 +27,6 @@ class PollService {
     return { ...poll, songs }
   }
 
-  static async findActive() {
-    const polls = await Poll.findActive()
-    return Promise.all(polls.map(async poll => {
-      const songs = await Poll.findSongsById(poll.id)
-      return { ...poll, songs }
-    }))
-  }
-
   static async create(data) {
     const pollId = await Poll.create(data)
     return this.findById(pollId)
@@ -69,6 +61,20 @@ class PollService {
     if (!poll) throw new CustomError(404, 'Poll not found')
     await Poll.deleteSongs(pollId, songIds)
     return this.findById(pollId)
+  }
+
+  static async activate(id) {
+    const poll = await this.findById(id)
+    if (!poll) throw new CustomError(404, 'Poll not found')
+    await Poll.activate(id)
+    return this.findById(id)
+  }
+
+  static async deactivate(id) {
+    const poll = await this.findById(id)
+    if (!poll) throw new CustomError(404, 'Poll not found')
+    await Poll.deactivate(id)
+    return this.findById(id)
   }
 }
 

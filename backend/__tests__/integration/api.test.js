@@ -327,6 +327,193 @@ describe('API Integration Tests', () => {
         expect(res.body).toEqual({ message: 'Poll deleted successfully' })
       })
     })
+
+    // Add songs to poll
+    describe('POST /api/polls/1/songs', () => {
+      it('should return an error when poll is not found', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  // findById(1)
+        const res = await request(app).post('/api/polls/1/songs').set('Authorization', getAuthHeader()).send([{ songId: 1 }, { songId: 2 }])
+        expect(res.status).toBe(404)
+        expect(res.body.error).toBe('Poll not found')
+      })
+
+      it('should return the updated poll with the new songs', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1) before adding songs
+          .mockResolvedValueOnce([[]]) // findSongsById(1) before adding songs
+          .mockResolvedValueOnce([[]]) // addSongs()
+          .mockResolvedValueOnce([[]]) // addSongs()
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1) after adding songs
+          .mockResolvedValueOnce([[{ songId: 1 }, { songId: 2 }]])  // findSongsById(1)
+        const res = await request(app).post('/api/polls/1/songs').set('Authorization', getAuthHeader()).send([{ songId: 1 }, { songId: 2 }])
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2, songs: [{ songId: 1 }, { songId: 2 }] })
+      })
+    })
+
+    // Delete songs from poll
+    describe('DELETE /api/polls/1/songs', () => {
+      it('should return an error when poll is not found', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  // findById(1)
+        const res = await request(app).delete('/api/polls/1/songs').set('Authorization', getAuthHeader()).send([{ songId: 1 }, { songId: 2 }])
+        expect(res.status).toBe(404)
+        expect(res.body.error).toBe('Poll not found')
+      })
+
+      it('should return the updated poll with the new songs', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1) before deleting songs
+          .mockResolvedValueOnce([[{ songId: 1 }, { songId: 2 }]]) // findSongsById(1) before deleting songs
+          .mockResolvedValueOnce([[]]) // deleteSongs()
+          .mockResolvedValueOnce([[]]) // deleteSongs()
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1) after deleting songs
+          .mockResolvedValueOnce([[]])  // findSongsById(1) after deleting songs
+        const res = await request(app).delete('/api/polls/1/songs').set('Authorization', getAuthHeader()).send([{ songId: 1 }, { songId: 2 }])
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2, songs: [] })
+      })
+    })
+
+    // Activate poll
+    describe('POST /api/polls/activate', () => {
+      it('should return an error when poll is not found', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  // findById(1)
+        const res = await request(app).post('/api/polls/activate').set('Authorization', getAuthHeader()).send({ id: 1 })
+        expect(res.status).toBe(404)
+        expect(res.body.error).toBe('Poll not found')
+      })
+
+      it('should return the activated poll', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 0 }]])  // findById(1) before activating
+          .mockResolvedValueOnce([[{ songId: 1 }, { songId: 2 }]])  // findSongsById(1) before activating
+          .mockResolvedValueOnce([[]]) // Disable all different polls
+          .mockResolvedValueOnce([[]]) // activate current poll
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1) after activating
+          .mockResolvedValueOnce([[{ songId: 1 }, { songId: 2 }]])  // findSongsById(1) after activating
+        const res = await request(app).post('/api/polls/activate').set('Authorization', getAuthHeader()).send({ id: 1 })
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2, songs: [{ songId: 1 }, { songId: 2 }] })
+      })
+    })
+
+    // Deactivate poll
+    describe('POST /api/polls/deactivate', () => {
+      it('should return an error when poll is not found', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  // findById(1)
+        const res = await request(app).post('/api/polls/deactivate').set('Authorization', getAuthHeader()).send({ id: 1 })
+        expect(res.status).toBe(404)
+        expect(res.body.error).toBe('Poll not found')
+      })
+
+      it('should return the deactivated poll', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // findById(1) before deactivating
+          .mockResolvedValueOnce([[{ songId: 1 }, { songId: 2 }]])  // findSongsById(1) before deactivating
+          .mockResolvedValueOnce([[]]) // Deactivate current poll
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 0 }]])  // findById(1) after deactivating
+          .mockResolvedValueOnce([[{ songId: 1 }, { songId: 2 }]])  // findSongsById(1) after deactivating
+        const res = await request(app).post('/api/polls/deactivate').set('Authorization', getAuthHeader()).send({ id: 1 })
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 0, songs: [{ songId: 1 }, { songId: 2 }] })
+      })
+     })
+
+     // Vote in poll
+    describe('POST /api/polls/vote', () => {
+      it('should return a message indicating that there are no active polls', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  //  getActivePollId
+        const res = await request(app).post('/api/polls/vote').send({ songId: 1 })
+        expect(res.status).toBe(404)
+        expect(res.body.error).toBe('There are no active surveys at the moment')
+      })
+
+      it('should return a message indicating that you have already voted in this poll', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1 }]])  // getActivePollId()
+          .mockResolvedValueOnce([[{ count: 1 }]])  // hasVoted()
+        const res = await request(app).post('/api/polls/vote').send({ songId: 1 })
+        expect(res.status).toBe(409)
+        expect(res.body.error).toBe('You have already voted in this poll')
+      })
+
+      it('should return a message indicating that the vote registered successfully', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1 }]])  // getActivePollId()
+          .mockResolvedValueOnce([[{ count: 0 }]])  // hasVoted()
+          .mockResolvedValueOnce([[{ songId: 1 }]])  //checkSongExists(1, 1)
+        const res = await request(app).post('/api/polls/vote').send({ songId: 1 })
+        expect(res.status).toBe(200)
+        expect(res.body.message).toBe('Vote registered successfully')
+      })
+     })
+
+     describe('GET /api/polls/votes', () => {
+      it('should return a message indicating that there are no active polls', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  //  getActivePollId
+        const res = await request(app).get('/api/polls/votes').set('Authorization', getAuthHeader())
+        expect(res.status).toBe(404)
+        expect(res.body.error).toBe('There are no active surveys at the moment')
+      })
+
+      it('should return the poll results', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[{ id: 1 }]])  // getActivePollId()
+          .mockResolvedValueOnce([[{ id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }]])  // Poll.findById
+          .mockResolvedValueOnce([[{ songId: 1, votes: 10 }, { songId: 2, votes: 5 }]])  // PollVote.findByPollId(1)
+          .mockResolvedValueOnce([[{ total: 15 }]])  // PollVote.countByPollId(1)
+        const res = await request(app).get('/api/polls/votes').set('Authorization', getAuthHeader())
+        expect(res.status).toBe(200)
+        expect(res.body).toEqual({ poll: { id: 1, name: 'Poll 1', description: 'Description 1', statusId: 2 }, votes: [{ songId: 1, votes: 10, percentage: 66 }, { songId: 2, votes: 5, percentage: 33 }], totalVotes: 15 })
+      })
+     })
+  })
+
+  describe('Auth APIs', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('GET /api/auth/register', () => {
+      it('should return an error when username already exists', async () => {
+        mockQuery.mockResolvedValueOnce([[{ id: 1, username: 'testuser', password: 'hashed_password' }]])  // findByUsername()
+        const res = await request(app).post('/api/auth/register').send({ username: 'testuser', password: 'password' })
+        expect(res.status).toBe(400)
+        expect(res.body.error).toBe('Username already exists')
+      })
+
+      it('should create user and return authentication token', async () => {
+        mockQuery
+          .mockResolvedValueOnce([[]])  // findByUsername()
+          .mockResolvedValueOnce([[{ insertId: 1 }]])  // create()
+        const res = await request(app).post('/api/auth/register').send({ username: 'testuser', password: 'password' })
+        expect(res.status).toBe(201)
+        expect(res.body.token).toBeDefined()
+      })
+    })
+
+    describe('GET /api/auth/login', () => {
+      it('should return an error when username does not exist', async () => {
+        mockQuery.mockResolvedValueOnce([[]])  // findByUsername()
+        const res = await request(app).post('/api/auth/login').send({ username: 'nonexistent', password: 'password' })
+        expect(res.status).toBe(401)
+        expect(res.body.error).toBe('Invalid credentials')
+      })
+
+      it('should return an error when password is incorrect', async () => {
+        mockQuery.mockResolvedValueOnce([[{ id: 1, username: 'testuser', password: '$2a$10$hashed_password' }]])  // findByUsername()
+        const res = await request(app).post('/api/auth/login').send({ username: 'testuser', password: 'wrongpassword' })
+        expect(res.status).toBe(401)
+        expect(res.body.error).toBe('Invalid credentials')
+      })
+
+      it('should return authentication token when credentials are correct', async () => {
+        mockQuery.mockResolvedValueOnce([[{ id: 1, username: 'testuser', password: '$2a$10$fCtvPW8sXCFMyalznGnoYuz213h.nJKJqV4XjF./f1x77u.niZJK.' }]])  // findByUsername()
+        const res = await request(app).post('/api/auth/login').send({ username: 'testuser', password: 'password' })
+        expect(res.status).toBe(200)
+        expect(res.body.token).toBeDefined()
+      })
+    })
   })
 
   describe('Error handling', () => {

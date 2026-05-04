@@ -35,3 +35,13 @@ exports.deleteSongs = async (req, res, next) => {
   const songIds = req.body.map(song => song.songId)
   res.json(await PollService.deleteSongs(pollId, songIds))
 }
+
+exports.activate = async (req, res, next) => {
+  const id = parseInt(req.body.id)
+  res.json(await PollService.activate(id))
+}
+
+exports.deactivate = async (req, res, next) => {
+  const id = parseInt(req.body.id)
+  res.json(await PollService.deactivate(id))
+}

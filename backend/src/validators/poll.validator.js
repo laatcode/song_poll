@@ -26,7 +26,7 @@ const updatePollSchema = joi.object({
 
 const getPollSchema = joi.object({
   id: id.required()
-})
+}).required()
 
 const editSongsSchema = joi.array().items({
   songId: songId.required()
