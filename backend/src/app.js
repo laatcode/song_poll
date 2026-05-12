@@ -1,7 +1,14 @@
 const express = require('express')
+const cors = require('cors')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSpec = require('./swagger')
+const { APP_CORS_ORIGIN } = require('./config')
 const app = express()
+
+// CORS
+app.use(cors({
+  origin: APP_CORS_ORIGIN === '*' ? '*' : APP_CORS_ORIGIN.split(',').map(origin => origin.trim())
+}))
 
 // Rate Limiting  
 app.use(require('./middlewares/rateLimit.middleware'))
