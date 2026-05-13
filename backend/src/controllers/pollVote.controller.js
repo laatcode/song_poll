@@ -9,3 +9,8 @@ exports.getResults = async (req, res, next) => {
   const pollId = await PollVoteService.getActivePollId()
   res.json(await PollVoteService.getResults(pollId))
 }
+
+exports.getActivePollId = async (req, res, next) => {
+  const pollId = await PollVoteService.getActivePollId()
+  res.json({ pollId })
+}
