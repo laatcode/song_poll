@@ -3,12 +3,9 @@
   "private": true,
   "description": "Sistema para encuesta de canciones",
   "scripts": {
-    "dev:backend": "npm run dev --workspace=backend"
+    "dev:backend": "pnpm --filter backend run dev",
+    "dev:frontend": "pnpm --filter frontend run dev"
   },
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "keywords": [
     "song",
     "poll"

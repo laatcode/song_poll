@@ -1,0 +1,210 @@
+:root {
+  --home-primary: #6366f1;
+  --home-secondary: #ec4899;
+  --home-success: #10b981;
+  --home-danger: #ef4444;
+  --home-background: #f8fafc;
+  --home-surface: #ffffff;
+  --home-text: #1e293b;
+  --home-text-muted: #64748b;
+  --home-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --home-radius: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--home-background);
+  color: var(--home-text);
+  min-height: 100vh;
+
+  .home {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  
+    .loading-container, .no-poll {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 1rem;
+      color: var(--home-text-muted);
+    }
+  
+    .no-poll {
+      svg {
+        color: var(--home-primary);
+        opacity: 0.5;
+      }
+      
+      h1 {
+        margin: 0;
+        height: 80px;
+        padding: 1rem;
+        font-size: 3rem;
+        background: linear-gradient(135deg, var(--home-primary), var(--home-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  
+    .home-header {
+      background: var(--home-surface);
+      padding: 1.5rem 2rem;
+      box-shadow: var(--home-shadow);
+  
+      h1 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.75rem;
+        color: var(--home-primary);
+      }
+  
+      svg {
+        color: var(--home-secondary);
+      }
+    }
+  
+    .home-main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+  
+      .error-message {
+        background: #fef2f2;
+        color: var(--home-danger);
+        padding: 1rem;
+        border-radius: var(--home-radius);
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+      
+      .poll-info {
+        text-align: center;
+        margin-bottom: 2rem;
+        
+        h2 {
+          font-size: 2rem;
+          color: var(--home-text);
+          margin-bottom: 0.5rem;
+        }
+  
+        p {
+          color: var(--home-text-muted);
+          font-size: 1.1rem;
+        }
+      }
+  
+      .songs-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+  
+        .song-card {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+          background: var(--home-surface);
+          padding: 1.25rem 1.5rem;
+          border-radius: var(--home-radius);
+          box-shadow: var(--home-shadow);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: 3px solid transparent;
+  
+          &:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgb(99 102 241 / 0.3);
+            border-color: var(--home-primary);
+          }
+  
+          &.selected {
+            border-color: var(--home-success);
+            background: linear-gradient(135deg, #f2fdfa, #c8ecbc);
+          }
+  
+          &.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+  
+          &:hover .vote-icon {
+            color: var(--home-secondary);
+          }
+  
+          .song-info {
+            flex: 1;
+  
+            h3 {
+              font-size: 1.2rem;
+              color: var(--home-text);
+              margin-bottom: 0.25rem;
+            }
+  
+            p {
+              color: var(--home-text-muted);
+              font-size: 0.95rem;
+            }
+          }
+  
+        }
+  
+      }
+  
+    }
+  
+  }
+}
+
+
+.voted-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  color: var(--home-success);
+  padding: 1.25rem;
+  border-radius: var(--home-radius);
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.voted-message .heart-icon {
+  color: var(--home-secondary);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.vote-icon {
+  color: var(--home-text-muted);
+  transition: color 0.2s;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: var(--home-primary);
+}
+
+.spinner-small {
+  animation: spin 1s linear infinite;
+  color: var(--home-secondary);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

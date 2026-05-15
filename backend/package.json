@@ -1,5 +1,5 @@
 {
-  "name": "song_poll_backend",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Backend para sistema de encuesta de canciones",
   "main": "src/server.js",
